@@ -27,6 +27,7 @@ int main_main(key_t key_im, key_t key_mo){
 			//**** destroy ex mode's status ****//
 			switch(ex_mode){
 				case PROG_MODE_CLOCK:
+					mode1_destroy()
 					break;
 				case PROG_MODE_COUNTER:
 					break;
@@ -36,12 +37,14 @@ int main_main(key_t key_im, key_t key_mo){
 					break;
 				case PROG_MODE_USER:
 					break;
+				// reset board function call
 
 			}
-
+		
 			//**** construct now mode's status ****//
 			switch(now_mode){
 				case PROG_MODE_CLOCK:
+					mode1_construct();
 					break;
 				case PROG_MODE_COUNTER:
 					break;

@@ -83,36 +83,36 @@ int output_main(key_t);
 
 //**** program mode 1. Clock ****//
 
-void prog1_construct();
-void prog1_destroy();
+void mode1_construct();
+void mode1_destroy();
 
 
 
 //**** program mode 2. Counter ****//
 
-void prog2_construct();
-void prog2_destroy();
+void mode2_construct();
+void mode2_destroy();
 
 
 
 //**** program mode 3. Text ****//
 
-void prog3_construct();
-void prog3_destroy();
+void mode3_construct();
+void mode3_destroy();
 
 
 
 //**** program mode 4. Draw ****//
 
-void prog4_construct();
-void prog4_destroy();
+void mode4_construct();
+void mode4_destroy();
 
 
 
 //**** program mode 5. User ****//
 
-void prog5_construct();
-void prog5_destroy();
+void mode5_construct();
+void mode5_destroy();
 
 
 
