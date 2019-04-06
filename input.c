@@ -76,6 +76,7 @@ int input_value(struct im_msgbuf *msgb, int key_dev, int swi_dev)
 		read(swi_dev, &swi_buffer, sizeof(swi_buffer));
 		for (i = 0 ; i < 9 ; i++){
 			if (swi_buffer[i]){
+				usleep(100000);
 				return i+10;
 			}
 		}

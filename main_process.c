@@ -6,6 +6,7 @@ int main_main(key_t key_im, key_t key_mo){
 	struct im_msgbuf imbuf;
 	struct mo_msgbuf mobuf;
 	unsigned int now_mode = 0, ex_mode = 0;
+	int change_flag = 0;
 
 	imbuf.msgtype = 1;
 	mobuf.msgtype = 2;
@@ -23,11 +24,11 @@ int main_main(key_t key_im, key_t key_mo){
 		
 
 		if (now_mode != ex_mode){
-
 			//**** destroy ex mode's status ****//
 			switch(ex_mode){
+				change_flag = 1;
 				case PROG_MODE_CLOCK:
-					mode1_destroy()
+					mode1_destroy();
 					break;
 				case PROG_MODE_COUNTER:
 					break;
@@ -38,12 +39,11 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_USER:
 					break;
 				// reset board function call
-
 			}
-		
 			//**** construct now mode's status ****//
 			switch(now_mode){
 				case PROG_MODE_CLOCK:
+					
 					mode1_construct();
 					break;
 				case PROG_MODE_COUNTER:
@@ -56,9 +56,23 @@ int main_main(key_t key_im, key_t key_mo){
 					break;
 			}
 		}
+		//**** construct now mode's status ****//
+		switch(now_mode){
+			case PROG_MODE_CLOCK:
+				mobuf = mode1_main(imbuf.swi);	
+				break;
+			case PROG_MODE_COUNTER:
+				break;
+			case PROG_MODE_TEXT:
+				break;
+			case PROG_MODE_DRAW:
+				break;
+			case PROG_MODE_USER:
+				break;
+		}
 
 
-		mobuf.mode = ex_mode = now_mode;
+		ex_mode = now_mode;
 		
 //		main_set_mobuf(&mobuf, now_mode);
 		msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long), 0);
@@ -77,9 +91,6 @@ int main_main(key_t key_im, key_t key_mo){
 	return 0;
 }
 
-void main_set_mobuf(struct mo_msgbuf* mobuf, int now_mode){
-	mobuf->mode = now_mode;
-}
 
 int main_mode_change(int how, unsigned int now_mode){
 

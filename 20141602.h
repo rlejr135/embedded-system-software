@@ -56,9 +56,15 @@ struct mo_msgbuf{
 	long msgtype;
 
 	unsigned char poweroff;
-	unsigned char mode;
 
-	//clock//
+	//**** FND ****//
+
+	//**** LED ****//
+
+
+	//**** Text LCD ****//
+
+	//**** Dot Matrix ****//
 
 };
 //**** input process  ****//
@@ -68,7 +74,6 @@ void input_init_imbuf(struct im_msgbuf *);
 
 //**** main process ****//
 int main_main(key_t, key_t);
-void main_set_mobuf(struct mo_msgbuf*, int);
 int main_mode_change(int, unsigned int);
 
 
@@ -85,7 +90,7 @@ int output_main(key_t);
 
 void mode1_construct();
 void mode1_destroy();
-
+struct mo_msgbuf mode1_main(unsigned char*);
 
 
 //**** program mode 2. Counter ****//
