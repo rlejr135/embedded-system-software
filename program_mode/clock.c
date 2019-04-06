@@ -10,17 +10,21 @@ struct mode1_state{
 	unsigned int hour, min;
 	unsigned int reset_hour, reset_min;
 	unsigned char led[8];
-
-
+	int terminate;
 };
 
 struct mode1_state *clock_state ;
 
-void mode1_destroy(){
+pthread_t mode1_background_thread;
+int mode1_thread_id;
 
+void mode1_destroy(){
+	int status;
 
 	printf("helloo!!\n");
 
+	mode1_state->terminate = 1;
+	pthread_join(mode1_thread_id, (void **)&status);
 	free(clock_state);
 }
 
@@ -29,10 +33,15 @@ void mode1_construct(){
 	static struct tm *t;
 
 	clock_state = (struct mode1_state*)malloc(sizeof(struct mode1_state));
+	mode1_state->terminate = 0;
+
 	timer = time(0);
 	t = localtime(&timer);
 	clock_state->reset_hour = clock_state->hour = t->tm_hour;
 	clock_state->reset_min = clock_state->min = t->tm_min;
+
+	mode1_thread_id = pthread_create(&mode1_background_thread, NULL, mode1_background, (void *));
+
 
 	printf("%d %d\n",clock_state->hour, clock_state->min);
 
@@ -70,3 +79,16 @@ struct mo_msgbuf mode1_main(unsigned char *swinum){
 	printf("flag : %d number : %d\n", sw1_flag, switch_number);
 	printf("%d %d\n", clock_state->hour, clock_state->min);
 }
+
+void *mode1_background(){
+	while(!(mode1_state->terminate)){
+		// check now time
+
+		// if swi 1 is pressed, turn on and off led
+	}
+
+}
+
+
+
+// todo : msgsnd at main background and background function

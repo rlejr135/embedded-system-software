@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <termios.h>
 #include <signal.h>
+#include <pthread.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -61,12 +62,13 @@ struct mo_msgbuf{
 
 	//**** LED ****//
 
-
 	//**** Text LCD ****//
 
 	//**** Dot Matrix ****//
 
 };
+
+
 //**** input process  ****//
 int input_main(key_t);
 int input_value(struct im_msgbuf *, int, int);
@@ -91,7 +93,7 @@ int output_main(key_t);
 void mode1_construct();
 void mode1_destroy();
 struct mo_msgbuf mode1_main(unsigned char*);
-
+void *mode1_background();
 
 //**** program mode 2. Counter ****//
 

@@ -6,7 +6,7 @@ int main_main(key_t key_im, key_t key_mo){
 	struct im_msgbuf imbuf;
 	struct mo_msgbuf mobuf;
 	unsigned int now_mode = 0, ex_mode = 0;
-	int change_flag = 0;
+	int change_flag = 0, poweroff_flag = 0;
 
 	imbuf.msgtype = 1;
 	mobuf.msgtype = 2;
@@ -18,7 +18,7 @@ int main_main(key_t key_im, key_t key_mo){
 			exit(1);
 		}
 
-		if (imbuf.key[0] == 1) mobuf.poweroff = POWER_OFF;
+		if (imbuf.key[0] == 1){ mobuf.poweroff = POWER_OFF; poweroff_flag = 1;}
 		else if (imbuf.key[1] == 1)	now_mode = main_mode_change(1, now_mode);
 		else if (imbuf.key[2] == 1)	now_mode = main_mode_change(-1, now_mode);
 		
@@ -75,7 +75,7 @@ int main_main(key_t key_im, key_t key_mo){
 		ex_mode = now_mode;
 		
 //		main_set_mobuf(&mobuf, now_mode);
-		msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long), 0);
+		if (poweroff_flag) msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long), 0);
 
 
 		//**** if power off button is pushed ****//
@@ -101,3 +101,7 @@ int main_mode_change(int how, unsigned int now_mode){
 	printf("hi %d %d\n", now_mode, how);
 	return now_mode;
 }
+
+
+
+// todo : make msgsnd and key_mo is global valable
