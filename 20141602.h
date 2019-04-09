@@ -8,6 +8,8 @@
 #include <termios.h>
 #include <signal.h>
 #include <pthread.h>
+
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -37,8 +39,15 @@
 #define KEY_RELEASE 0
 #define KEY_PRESS   1
 
-
-
+#define LED_1 128
+#define LED_2 64
+#define LED_3 32
+#define LED_4 16
+#define LED_5 8
+#define LED_6 4
+#define LED_7 2
+#define LED_8 1
+#define LED_NONE 0
 struct input_event ev[BUFF_SIZE];
 
 struct im_msgbuf{
@@ -59,9 +68,9 @@ struct mo_msgbuf{
 	unsigned char poweroff;
 
 	//**** FND ****//
-
+	unsigned char fnd_data[4];
 	//**** LED ****//
-
+	unsigned char led_data;
 	//**** Text LCD ****//
 
 	//**** Dot Matrix ****//
@@ -76,24 +85,24 @@ void input_init_imbuf(struct im_msgbuf *);
 
 //**** main process ****//
 int main_main(key_t, key_t);
+void main_msgsnd(struct mo_msgbuf, key_t);
 int main_mode_change(int, unsigned int);
-
+void main_mobuf_init(struct mo_msgbuf *);
 
 
 //**** output process ****//
 int output_main(key_t);
-
-
+void output_fnd(int, unsigned char *);
 
 
 
 
 //**** program mode 1. Clock ****//
 
-void mode1_construct();
+void mode1_construct(key_t);
 void mode1_destroy();
-struct mo_msgbuf mode1_main(unsigned char*);
-void *mode1_background();
+void mode1_main(unsigned char*, key_t);
+void *mode1_background(void *);
 
 //**** program mode 2. Counter ****//
 

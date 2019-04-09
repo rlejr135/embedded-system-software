@@ -4,6 +4,7 @@ int input_main(key_t key_im){
 
 	struct im_msgbuf imbuf;
 	int key_dev, swi_dev;
+
 	int input_flag = 0, i;
 
 	if((key_dev = open ("/dev/input/event0", O_RDONLY|O_NONBLOCK)) == -1) {
@@ -31,9 +32,9 @@ int input_main(key_t key_im){
 		}
 		usleep(100000);
 	}
-	printf("input close\n");
 	close(key_dev);
 	close(swi_dev);
+	printf("input close\n");
 	return 0;
 }
 

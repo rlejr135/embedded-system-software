@@ -1,4 +1,4 @@
-CC = arm-none-linux-gnueabi-gcc -static
+CC = arm-none-linux-gnueabi-gcc -pthread -static
 #CC = gcc
 
 CFLAGS = -c
