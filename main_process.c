@@ -4,14 +4,13 @@ int poweroff_flag = 0;
 void main_msgsnd(struct mo_msgbuf mobuf, key_t key_mo){
 
 	msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long),0);
-	printf("send\n");
+	printf("send %d %d\n", key_mo, mobuf.msgtype);
 }
 int main_main(key_t key_im, key_t key_mo){
 
 	struct im_msgbuf imbuf;
 	struct mo_msgbuf mobuf;
 	unsigned int now_mode = 0, ex_mode = 0;
-	int change_flag = 0;
 
 	imbuf.msgtype = 1;
 	mobuf.msgtype = 3;
@@ -19,7 +18,7 @@ int main_main(key_t key_im, key_t key_mo){
 
 	//**** in first, mode1 ****//
 	mode1_construct(key_mo);
-
+	usleep(10000);
 	while(1){
 		if (-1 == msgrcv(key_im, &imbuf, sizeof(struct im_msgbuf) - sizeof(long), 1, 0)){
 			perror("msgrcv() fail\n");
@@ -32,7 +31,6 @@ int main_main(key_t key_im, key_t key_mo){
 		if (now_mode != ex_mode){
 			//**** destroy ex mode's status ****//
 			switch(ex_mode){
-				change_flag = 1;
 				case PROG_MODE_CLOCK: { mode1_destroy(); break; }
 				case PROG_MODE_COUNTER:	{ break; }
 				case PROG_MODE_TEXT: { break; }
@@ -42,21 +40,14 @@ int main_main(key_t key_im, key_t key_mo){
 			}
 			//**** construct now mode's status ****//
 			switch(now_mode){
-				case PROG_MODE_CLOCK:
-					
-					mode1_construct(key_mo);
-					break;
-				case PROG_MODE_COUNTER:
-					break;
-				case PROG_MODE_TEXT:
-					break;
-				case PROG_MODE_DRAW:
-					break;
-				case PROG_MODE_USER:
-					break;
+				case PROG_MODE_CLOCK: { mode1_construct(); break; }
+				case PROG_MODE_COUNTER:	{ break; }
+				case PROG_MODE_TEXT: { break; }
+				case PROG_MODE_DRAW: { break; }
+				case PROG_MODE_USER: { break; }
 			}
 		}
-		//**** construct now mode's status ****//
+		//**** execute now mode ****//
 		switch(now_mode){
 			case PROG_MODE_CLOCK:
 				mode1_main(imbuf.swi, key_mo);	

@@ -8,6 +8,7 @@
 #include <termios.h>
 #include <signal.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -19,6 +20,9 @@
 #include <sys/select.h>
 #include <linux/input.h>
 
+
+#define TRUE 1
+#define FALSE 0
 
 #define IPC_MSGQ_IM 1245
 #define IPC_MSGQ_MO 5421
@@ -103,6 +107,7 @@ void mode1_construct(key_t);
 void mode1_destroy();
 void mode1_main(unsigned char*, key_t);
 void *mode1_background(void *);
+void mode1_set_fnd(struct mo_msgbuf *msg);
 
 //**** program mode 2. Counter ****//
 
