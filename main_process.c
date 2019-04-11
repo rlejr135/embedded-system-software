@@ -4,7 +4,6 @@ int poweroff_flag = 0;
 void main_msgsnd(struct mo_msgbuf mobuf, key_t key_mo){
 
 	msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long),0);
-	printf("send %d %d\n", key_mo, mobuf.msgtype);
 }
 int main_main(key_t key_im, key_t key_mo){
 
@@ -24,42 +23,36 @@ int main_main(key_t key_im, key_t key_mo){
 			perror("msgrcv() fail\n");
 			exit(1);
 		}
-		if (imbuf.key[0] == 1) poweroff_flag = 1;
+		if (imbuf.key[0] == 1) 		poweroff_flag = 1;
 		else if (imbuf.key[1] == 1)	now_mode = main_mode_change(1, now_mode);
 		else if (imbuf.key[2] == 1)	now_mode = main_mode_change(-1, now_mode);
 		
 		if (now_mode != ex_mode){
 			//**** destroy ex mode's status ****//
 			switch(ex_mode){
-				case PROG_MODE_CLOCK: { mode1_destroy(); break; }
-				case PROG_MODE_COUNTER:	{ break; }
-				case PROG_MODE_TEXT: { break; }
-				case PROG_MODE_DRAW: { break; }
-				case PROG_MODE_USER: { break; }
+				case PROG_MODE_CLOCK: 	{ mode1_destroy(); break; }
+				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
+				case PROG_MODE_TEXT: 	{ break; }
+				case PROG_MODE_DRAW:	{ break; }
+				case PROG_MODE_USER: 	{ break; }
 				// reset board function call
 			}
 			//**** construct now mode's status ****//
 			switch(now_mode){
-				case PROG_MODE_CLOCK: { mode1_construct(); break; }
-				case PROG_MODE_COUNTER:	{ break; }
-				case PROG_MODE_TEXT: { break; }
-				case PROG_MODE_DRAW: { break; }
-				case PROG_MODE_USER: { break; }
+				case PROG_MODE_CLOCK: 	{ mode1_construct(key_mo); break; }
+				case PROG_MODE_COUNTER:	{ mode2_construct(key_mo); break; }
+				case PROG_MODE_TEXT: 	{ break; }
+				case PROG_MODE_DRAW: 	{ break; }
+				case PROG_MODE_USER: 	{ break; }
 			}
 		}
 		//**** execute now mode ****//
 		switch(now_mode){
-			case PROG_MODE_CLOCK:
-				mode1_main(imbuf.swi, key_mo);	
-				break;
-			case PROG_MODE_COUNTER:
-				break;
-			case PROG_MODE_TEXT:
-				break;
-			case PROG_MODE_DRAW:
-				break;
-			case PROG_MODE_USER:
-				break;
+			case PROG_MODE_CLOCK: 		{ mode1_main(imbuf.swi, key_mo); break; }
+			case PROG_MODE_COUNTER:		{ mode2_main(imbuf.swi, key_mo); break; }
+			case PROG_MODE_TEXT: 		{ break; }
+			case PROG_MODE_DRAW: 		{ break; }
+			case PROG_MODE_USER: 		{ break; }
 		}
 		ex_mode = now_mode;
 
@@ -71,6 +64,7 @@ int main_main(key_t key_im, key_t key_mo){
 			mobuf.poweroff = POWER_OFF;
 			main_msgsnd(mobuf, key_mo);
 			mode1_destroy();
+			mode2_destroy();
 			break;
 		}
 	}

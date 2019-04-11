@@ -27,6 +27,8 @@
 #define IPC_MSGQ_IM 1245
 #define IPC_MSGQ_MO 5421
 
+#define MO_MSGTYPE 3
+
 #define BUFF_SIZE 64
 
 #define POWER_ON 0
@@ -107,12 +109,16 @@ void mode1_construct(key_t);
 void mode1_destroy();
 void mode1_main(unsigned char*, key_t);
 void *mode1_background(void *);
-void mode1_set_fnd(struct mo_msgbuf *msg);
+void mode1_set_fnd(struct mo_msgbuf *);
 
 //**** program mode 2. Counter ****//
 
-void mode2_construct();
+void mode2_construct(key_t);
 void mode2_destroy();
+void mode2_main(unsigned char*, key_t);
+void mode2_set_msg(struct mo_msgbuf *);
+int mode2_find_method();
+void mode2_check_maximum();
 
 
 
