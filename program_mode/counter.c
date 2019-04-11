@@ -124,7 +124,8 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	msg->fnd_data[3] = (number % jinsu) + 0x30;
 
 	while(i < 4){
-		printf("[%d]", msg->fnd_data[i++]);
+		printf("[%d]", msg->fnd_data[i]);
+		i++;
 	}
 	printf("\n");
 }

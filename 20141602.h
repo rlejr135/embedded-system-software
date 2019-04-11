@@ -78,8 +78,9 @@ struct mo_msgbuf{
 	//**** LED ****//
 	unsigned char led_data;
 	//**** Text LCD ****//
-
+	char text_string[33];
 	//**** Dot Matrix ****//
+	unsigned char dot_map[10];
 
 };
 
@@ -94,12 +95,14 @@ int main_main(key_t, key_t);
 void main_msgsnd(struct mo_msgbuf, key_t);
 int main_mode_change(int, unsigned int);
 void main_mobuf_init(struct mo_msgbuf *);
+void main_output_clear(struct mo_msgbuf *);
 
 
 //**** output process ****//
 int output_main(key_t);
 void output_fnd(int, unsigned char *);
-
+void output_dot(int, unsigned char *);
+void output_text_lcd(int, char *);
 
 
 
