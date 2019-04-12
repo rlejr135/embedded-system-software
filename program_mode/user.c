@@ -257,4 +257,5 @@ void mode5_strcat(){
 void mode5_check(int where){
 	
 
+	mode5_strcat();
 }
