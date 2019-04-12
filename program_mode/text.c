@@ -190,6 +190,7 @@ void mode3_set_msg(struct mo_msgbuf *msg){
 
 	//**** do not use led data ****//
 	msg->led_data = LED_NONE;
+	msg->buzz = FALSE;
 
 	//**** set dot matrix A or 1 ****//
 	while (i < 10){

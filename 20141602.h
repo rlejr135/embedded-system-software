@@ -81,7 +81,9 @@ struct mo_msgbuf{
 	char text_string[33];
 	//**** Dot Matrix ****//
 	unsigned char dot_map[10];
-
+	
+	//**** buzzer ****//
+	unsigned char buzz;
 };
 
 

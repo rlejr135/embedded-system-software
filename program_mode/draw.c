@@ -156,6 +156,7 @@ void *mode4_background(void * key){
 
 				//**** do not use led_data and text lcd ****//
 				msg.led_data = LED_NONE;
+				msg.buzz = FALSE;
 			
 				while(i < 33){
 					msg.text_string[i] = ' ';
@@ -198,6 +199,7 @@ void mode4_set_msg(struct mo_msgbuf *msg){
 		msg->text_string[i] = ' ';
 		i++;
 	} i = 0;
+	msg->buzz = FALSE;
 	
 	//**** set fnd ****//
 	msg->fnd_data[0] = (swi_count / 1000) % 10 + 0x30;

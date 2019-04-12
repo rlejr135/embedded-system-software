@@ -89,7 +89,7 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
 				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
 				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
-				case PROG_MODE_USER: 	{ break; }
+				case PROG_MODE_USER: 	{ mode5_destroy(); break; }
 			}
 	
 			break;
@@ -112,7 +112,6 @@ int main_mode_change(int how, unsigned int now_mode){
 	now_mode += how;
 	now_mode %= 5;
 	
-	printf("hi %d %d\n", now_mode, how);
 	return now_mode;
 }
 
@@ -126,6 +125,7 @@ void main_mobuf_init(struct mo_msgbuf *msg){
 		i++;
 	}
 	msg->led_data = LED_NONE;
+	msg->buzz = FALSE;
 }
 
 void main_msg_clear(struct mo_msgbuf *msg){
@@ -149,4 +149,6 @@ void main_msg_clear(struct mo_msgbuf *msg){
 		msg->dot_map[i] = fpga_set_blank[i];
 		i++;
 	}
+
+	msg->buzz = FALSE;
 }

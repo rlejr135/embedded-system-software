@@ -122,6 +122,8 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 		i++;
 	}
 	i = 0;
+
+	msg->buzz = FALSE;
 	/////////////////////////////////////////
 
 

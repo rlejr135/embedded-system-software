@@ -172,4 +172,6 @@ void mode1_set_fnd(struct mo_msgbuf *msg){
 		msg->dot_map[i] = 0x00;
 		i++;
 	}
+	
+	msg->buzz = FALSE;
 }

@@ -12,9 +12,11 @@ int output_main(key_t key_mo){
 	extern int poweroff_flag;
 	struct mo_msgbuf mobuf;
 
-	int fnd_dev, led_mmap, text_dev, dot_dev;
+	int fnd_dev, led_mmap, text_dev, dot_dev, buz_dev;
+	unsigned char buz_data;
 	unsigned long *fpga_addr = 0;
 	unsigned char *led_addr = 0;
+	unsigned char ret;
 
 	//**** open fnd ****//
 	if ((fnd_dev = open("/dev/fpga_fnd", O_RDWR)) < 0){
@@ -51,7 +53,11 @@ int output_main(key_t key_mo){
 		exit(1);
 	}
 
-	
+	//**** open buzzer dev ****//
+	if ((buz_dev = open("/dev/fpga_buzzer", O_RDWR)) < 0){
+		printf("buz device open error\n");
+		exit(1);
+	}
 	
 	while(1){
 		if (-1 == msgrcv(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long), 3, 0)){
@@ -71,6 +77,15 @@ int output_main(key_t key_mo){
 		//**** print text lcd ****//
 		output_text_lcd(text_dev, mobuf.text_string);
 
+		//**** buz dev ****//
+		if (mobuf.buzz == TRUE){
+			buz_data = 1;
+			ret = write(buz_dev, &buz_data, 1);
+			usleep(500000);
+			buz_data = 0;
+			ret = write(buz_dev, &buz_data, 1);
+		}
+
 
 		if (mobuf.poweroff == POWER_OFF) break;
 	}
@@ -80,6 +95,7 @@ int output_main(key_t key_mo){
 	close(led_mmap);
 	close(dot_dev);
 	close(text_dev);
+	close(buz_dev);
 
 	printf("output bye\n");
 }
