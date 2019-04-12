@@ -50,14 +50,14 @@ struct mode5_state{
 	int combo;
 	int max_combo;
 
-	int game_state;
+	int game_state;									// ex or running or after
 
-	unsigned char note[10];
-	unsigned char game_text[MAX_STRING_LEN + 1];
-	int text_len;
+	unsigned char note[10];							// map
+	unsigned char game_text[MAX_STRING_LEN + 1];	// text lcd
+	int text_len;									
 
-	int check_flag;
-	int wrong_flag;
+	int check_flag;									// if user push switch?
+	int wrong_flag;									// if pushed switch is wrong?
 
 	int terminate;
 };
@@ -127,6 +127,7 @@ void mode5_main(unsigned char *swinum, key_t key_mo){
 		i++;
 	} i = 0;
 
+	// **** handling each case by 3 state. **** //
 	if (piano_tile_state->game_state == BEFORE_START){
 		switch(switch_number){
 			case EASY: piano_tile_state->difficulty = EASY;
@@ -160,6 +161,7 @@ void mode5_main(unsigned char *swinum, key_t key_mo){
 		}
 	}
 	else if (piano_tile_state->game_state == FINISH){
+		// **** new game **** //
 		if (switch_number == BUTTON_SELECT){
 			mode5_destroy();
 			mode5_construct(key_mo);
@@ -183,18 +185,22 @@ void *mode5_background(void *key){
 	srand(time(NULL));
 
 	while(piano_tile_state->terminate == FALSE && poweroff_flag == POWER_ON){
+		// **** state is not running, continue **** //
 		if (piano_tile_state->game_state != RUNNING){
 			usleep(500000);
 			continue;
 		}
 
 		pthread_mutex_lock(&mutex_lock);
+
+		// **** note down ****//
 		i = 8;
 		while (i >= 0){
 			piano_tile_state->note[i+1] = piano_tile_state->note[i];
 			i--;
 		}
 
+		// **** make random note **** //
 		random = (rand() % 5);
 		switch(random){
 			case 0: piano_tile_state->note[0] = 0x61; break;
@@ -207,6 +213,7 @@ void *mode5_background(void *key){
 		mode5_set_msg(&msg);
 		main_msgsnd(msg, key_mo);
 
+		// **** check user mistakes **** //
 		if (tick_num > 10 && piano_tile_state->check_flag == FALSE){
 
 			if (piano_tile_state->life >= 1){
@@ -227,6 +234,8 @@ void *mode5_background(void *key){
 		piano_tile_state->check_flag = FALSE;
 		usleep(1000000 - (piano_tile_state->speed * mu));
 		tick_num += 1;
+
+		// **** if time is gone, speed up **** //
 		if (tick_num >= 30){
 			tick_num = 11;
 			if (piano_tile_state->speed < MAX_SPEED){
@@ -292,6 +301,7 @@ void mode5_strcat(){
 	char c_score[10] = {0,};
 	char c_combo[10] = {0,};
 
+	// **** set each difficulty case **** //
 	if (piano_tile_state->game_state == BEFORE_START){
 		i = BEFORE_START_TEXT_LEN;
 		switch (piano_tile_state->difficulty){
@@ -317,10 +327,10 @@ void mode5_strcat(){
 	else{
 		// **** make int score to char score, strcat at game text
 		sprintf(c_score, "%d", piano_tile_state->score);
-		sprintf(c_combo, "%d", piano_tile_state->combo);
 
 		if (piano_tile_state->game_state == RUNNING) {
 			i = RUNNING_TEXT_LEN;
+			sprintf(c_combo, "%d", piano_tile_state->combo);
 
 			j = 0;
 			while (j< i){
@@ -330,6 +340,7 @@ void mode5_strcat(){
 		}
 		else if (piano_tile_state->game_state == FINISH) {
 			i = FINISH_TEXT_LEN;
+			sprintf(c_combo, "%d", piano_tile_state->max_combo);
 
 			j = 0;
 			while (j< i){
@@ -337,6 +348,8 @@ void mode5_strcat(){
 				j++;
 			}
 		}
+
+		// **** for text lcd, write information **** //
 		j = COMBO_PRINT_LOC;
 		k = 0;
 		while (k < strlen(c_combo)){
@@ -355,6 +368,7 @@ void mode5_strcat(){
 void mode5_check(int where){
 	int check_flag = FALSE;
 
+	// **** check user type switch and note is same **** //
 	switch(where){
 		case BUTTON_1:
 			if (CHECK_B_1 == piano_tile_state->note[9]){
@@ -389,7 +403,7 @@ void mode5_check(int where){
 		piano_tile_state->score += 5 * (piano_tile_state->combo/10) + 1;
 	}
 	else{
-
+		// **** if not, life minus **** //
 		if (piano_tile_state->life >= 1){
 			piano_tile_state->life -= 1;
 			piano_tile_state->wrong_flag = TRUE;

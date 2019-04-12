@@ -22,7 +22,7 @@ struct mode4_state{
 };
 struct mode4_state *draw_state;
 
-const unsigned char dot_space[8] = {
+const unsigned char dot_space[8] = {				//for drawing.
 	0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 
@@ -72,7 +72,8 @@ void mode4_main(unsigned char *swinum, key_t key_mo){
 		if (swinum[i] == 1) { draw_state->count_num += 1; switch_number = i; break;}
 		i++;
 	} i = 0;
-	
+
+	// **** handling each case **** //
 	switch(switch_number){
 		case UP:
 			if (draw_state->row > 0) { draw_state->row -= 1; draw_state->change_flag = TRUE; }
@@ -89,6 +90,7 @@ void mode4_main(unsigned char *swinum, key_t key_mo){
 		case RESET:
 			mode4_destroy();
 			mode4_construct(key_mo);
+			return ;
 			break;
 		case CURSOR:
 			draw_state->cursor_flag += 1;
@@ -192,7 +194,7 @@ void mode4_set_msg(struct mo_msgbuf *msg){
 	msg->msgtype = MO_MSGTYPE;
 	msg->poweroff = POWER_ON;
 
-	//**** do not use led_data and text lcd ****//
+	//**** do not use led_data, buzzer and text lcd ****//
 	msg->led_data = LED_NONE;
 	
 	while(i < 33){

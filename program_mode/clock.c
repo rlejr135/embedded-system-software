@@ -27,7 +27,7 @@ void mode1_destroy(){
 	pthread_mutex_destroy(&mutex_lock);
 	free(clock_state);
 }
-
+// **** initialize state **** //
 void mode1_construct(key_t key_mo){
 	time_t timer;
 	static struct tm *t;
@@ -64,7 +64,7 @@ void mode1_main(unsigned char *swinum, key_t key_mo){
 		if (swinum[i] == 1) switch_number = i;
 		i++;
 	}
-	main_mobuf_init(&output_msg);
+	main_msg_clear(&output_msg);
 
 	//**** select what switch number ****//
 	switch (switch_number){
@@ -121,8 +121,8 @@ void *mode1_background(void *key){
 
 	while(!(clock_state->terminate) && !poweroff_flag){
 
+		// **** lock ****//
 		pthread_mutex_lock(&mutex_lock);
-
 		mode1_set_fnd(&msg);
 
 		// **** check if 1 minute ****//
@@ -152,6 +152,7 @@ void *mode1_background(void *key){
 	pthread_exit(0);
 }
 
+// **** set msgbuf **** //
 void mode1_set_fnd(struct mo_msgbuf *msg){
 	int i = 0;
 

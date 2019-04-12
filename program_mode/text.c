@@ -21,11 +21,11 @@ const char swi_text[9][3] = {
 };
 
 struct mode3_state{
-	unsigned int count_num;
+	unsigned int count_num;						// how many times does switch pushed
 	char display_string[MAX_STRING_LEN + 1];
 	int string_size;
-	char type;
-	int click_flag[9];
+	char type;									// A or 1
+	int click_flag[9];							// if type is A, what order
 	int first_typing;
 
 	int terminate;
@@ -188,7 +188,7 @@ void mode3_set_msg(struct mo_msgbuf *msg){
 	msg->msgtype = MO_MSGTYPE;
 	msg->poweroff = POWER_ON;
 
-	//**** do not use led data ****//
+	//**** do not use led data and buzzer ****//
 	msg->led_data = LED_NONE;
 	msg->buzz = FALSE;
 

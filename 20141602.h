@@ -96,7 +96,6 @@ void input_init_imbuf(struct im_msgbuf *);
 int main_main(key_t, key_t);
 void main_msgsnd(struct mo_msgbuf, key_t);
 int main_mode_change(int, unsigned int);
-void main_mobuf_init(struct mo_msgbuf *);
 void main_msg_clear(struct mo_msgbuf *);
 
 

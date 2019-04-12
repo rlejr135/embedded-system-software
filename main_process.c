@@ -21,8 +21,8 @@ unsigned char fpga_set_blank[10] = {
 };
 
 
+// **** msg send ****//
 void main_msgsnd(struct mo_msgbuf mobuf, key_t key_mo){
-
 	msgsnd(key_mo, &mobuf, sizeof(struct mo_msgbuf) - sizeof(long),0);
 }
 int main_main(key_t key_im, key_t key_mo){
@@ -38,11 +38,13 @@ int main_main(key_t key_im, key_t key_mo){
 	//**** in first, mode1 ****//
 	mode1_construct(key_mo);
 	usleep(10000);
+
 	while(1){
 		if (-1 == msgrcv(key_im, &imbuf, sizeof(struct im_msgbuf) - sizeof(long), 1, 0)){
 			perror("msgrcv() fail\n");
 			exit(1);
 		}
+		//**** look readkey ****//
 		if (imbuf.key[0] == 1) 		poweroff_flag = 1;
 		else if (imbuf.key[1] == 1)	now_mode = main_mode_change(1, now_mode);
 		else if (imbuf.key[2] == 1)	now_mode = main_mode_change(-1, now_mode);
@@ -55,7 +57,6 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
 				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
 				case PROG_MODE_USER: 	{ mode5_destroy(); break; }
-				// reset board function call
 			}
 			//**** construct now mode's status ****//
 			switch(now_mode){
@@ -77,31 +78,32 @@ int main_main(key_t key_im, key_t key_mo){
 		ex_mode = now_mode;
 
 		//**** init msgbuf ****//
-		main_mobuf_init(&mobuf);
+		main_msg_clear(&mobuf);
 
 
 		if (poweroff_flag) {
 			mobuf.poweroff = POWER_OFF;
 			main_msg_clear(&mobuf);
 			main_msgsnd(mobuf, key_mo);
+
+			//**** destroy now mode and exit ****//
 			switch(now_mode){
 				case PROG_MODE_CLOCK: 	{ mode1_destroy(); break; }
 				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
 				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
 				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
 				case PROG_MODE_USER: 	{ mode5_destroy(); break; }
-			}
-	
+			}	
 			break;
 		}
 	}
 
-	printf("main close\n");
+	// **** wait input and output process **** //
 	wait(NULL);
 	wait(NULL);
 
 
-	printf("bye\n");
+	printf("Good bye\n");
 	return 0;
 }
 
@@ -114,24 +116,11 @@ int main_mode_change(int how, unsigned int now_mode){
 	
 	return now_mode;
 }
-
-void main_mobuf_init(struct mo_msgbuf *msg){
-	int i = 0;
-	msg->msgtype = 3;
-	msg->poweroff = POWER_ON;
-
-	while(i < 4){
-		msg->fnd_data[i] = 0;
-		i++;
-	}
-	msg->led_data = LED_NONE;
-	msg->buzz = FALSE;
-}
-
+// **** mo_msgbuf init **** //
 void main_msg_clear(struct mo_msgbuf *msg){
 	int i = 0;
 	msg->msgtype = MO_MSGTYPE;
-
+	msg->poweroff = POWER_ON;
 	msg->led_data = LED_NONE;
 	while (i < 4){
 		msg->fnd_data[i] = 0x30;

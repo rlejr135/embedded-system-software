@@ -57,6 +57,8 @@ void mode2_main(unsigned char *swinum, key_t key_mo){
 	}
 
 	method_num = mode2_find_method();
+
+	// **** each case handling ****//
 	switch (switch_number){
 		case CHANGE:
 			counter_state->type = (counter_state->type + 1) % 4;
@@ -110,7 +112,7 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	msg->msgtype = MO_MSGTYPE;
 	msg->poweroff = POWER_ON;
 
-	//**** do not use text and dot map ****//
+	//**** do not use text, buzzer and dot map ****//
 	while (i<33){
 		msg->text_string[i] = ' ';
 		i++;
@@ -124,14 +126,14 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	i = 0;
 
 	msg->buzz = FALSE;
-	/////////////////////////////////////////
 
-
+	// **** set led data **** //
 	if (jinsu == DECIMAL) 		{ jinsu = 10; msg->led_data = LED_2; }
 	else if (jinsu == OCTAL) 	{ jinsu = 8; msg->led_data = LED_3; }
 	else if (jinsu == QUADRATIC)	{ jinsu = 4; msg->led_data = LED_4; }
 	else if (jinsu == BINARY) 	{ jinsu = 2; msg->led_data = LED_1; }
 
+	// **** set fnd data **** //
 	msg->fnd_data[0] = 0 + 0x30;	
 	msg->fnd_data[1] = ((number / jinsu / jinsu) % jinsu) + 0x30;	
 	msg->fnd_data[2] = ((number / jinsu) % jinsu) + 0x30;	
