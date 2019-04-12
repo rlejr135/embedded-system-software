@@ -22,7 +22,7 @@ struct mode4_state{
 };
 struct mode4_state *draw_state;
 
-unsigned char dot_space[8] = {
+const unsigned char dot_space[8] = {
 	0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
 };
 

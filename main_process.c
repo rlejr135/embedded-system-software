@@ -54,7 +54,7 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
 				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
 				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
-				case PROG_MODE_USER: 	{ break; }
+				case PROG_MODE_USER: 	{ mode5_destroy(); break; }
 				// reset board function call
 			}
 			//**** construct now mode's status ****//
@@ -63,7 +63,7 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_COUNTER:	{ mode2_construct(key_mo); break; }
 				case PROG_MODE_TEXT: 	{ mode3_construct(key_mo); break; }
 				case PROG_MODE_DRAW: 	{ mode4_construct(key_mo); break; }
-				case PROG_MODE_USER: 	{ break; }
+				case PROG_MODE_USER: 	{ mode5_construct(key_mo); break; }
 			}
 		}
 		//**** execute now mode ****//
@@ -72,7 +72,7 @@ int main_main(key_t key_im, key_t key_mo){
 			case PROG_MODE_COUNTER:		{ mode2_main(imbuf.swi, key_mo); break; }
 			case PROG_MODE_TEXT: 		{ mode3_main(imbuf.swi, key_mo); break; }
 			case PROG_MODE_DRAW: 		{ mode4_main(imbuf.swi, key_mo); break; }
-			case PROG_MODE_USER: 		{ break; }
+			case PROG_MODE_USER: 		{ mode5_main(imbuf.swi, key_mo); break; }
 		}
 		ex_mode = now_mode;
 

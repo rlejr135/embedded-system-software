@@ -145,8 +145,10 @@ void mode4_set_msg(struct mo_msgbuf*);
 
 //**** program mode 5. User ****//
 
-void mode5_construct();
+void mode5_construct(key_t);
 void mode5_destroy();
-
-
-
+void mode5_main(unsigned char*, key_t);
+void *mode5_background(void *);
+void mode5_set_msg(struct mo_msgbuf*);
+void mode5_strcat();
+void mode5_check(int );
