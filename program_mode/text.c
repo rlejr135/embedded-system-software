@@ -1,6 +1,6 @@
 #include "../20141602.h"
 
-#define ALPHA  	10
+#define ALPHA 10
 #define NUMBER 	1
 
 #define CHANGE  0
@@ -23,8 +23,8 @@ struct mode3_state{
 	unsigned int count_num;
 	char display_string[9];
 	int string_size;
-	int type;
-	unsigned int click_flag[9];
+	char type;
+	int click_flag[9];
 	int first_typing;
 
 	int terminate;
@@ -75,17 +75,25 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 	int input_flag;
 
 	while (i < 9){
-		if (swinum[i] == 1) switch_number = i;
+		if (swinum[i] == 1){ switch_number = i; text_state->count_num +=1;}
 		i++;
 	} i = 0;
 
 	//**** clear text lcd ****//
-	if (swinum[3] == 1 && swinum[4] == 1){	
+	if (swinum[1] == 1 && swinum[2] == 1){	
+//	if (swinum[1] == 1){	
 		i = 0;
+		while(i < 8){
+			mode3_set_string(' ', SET);
+			i++;
+		} 
+		text_state->display_string[8] = '\0';
+		i = 0;
+		text_state->string_size = 0;
 	}
 	//**** change eng -> num, num -> eng ****//
-	else if (swinum[5] == 1 && swinum[6] == 1){
-//	else if (swinum[5] == 1){
+	else if (swinum[4] == 1 && swinum[5] == 1){
+//	else if (swinum[4] == 1){
 		if (text_state->type == ALPHA) text_state->type = NUMBER;
 		else if (text_state->type == NUMBER) text_state->type = ALPHA;
 
@@ -96,16 +104,16 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 		text_state->first_typing = TRUE;
 	}
 	//**** set space ****//
-	else if (swinum[8] == 1 && swinum[9] == 1){
+	else if (swinum[7] == 1 && swinum[8] == 1){
+//	else if (swinum[7] == 1){
 		mode3_set_string(' ', SET);
 	}
 	//**** just one switch pushed ****//
-	else{
+	else if (switch_number != -1){
 		//**** define how switch pushed. ****//
 		/*	SET : swi(3) -> swi(4) 		res : DG
 		/	CHANGE : swi(3) -> swi(3)	res : E
 		*/
-		printf("hi\n");
 		if (text_state->type == ALPHA){
 			while (i < 9){
 				if (i == switch_number){
@@ -141,7 +149,6 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 		else if (text_state->type == NUMBER){
 			mode3_set_string(switch_number + 1, SET);
 		}
-		printf("[%s] %d\n", text_state->display_string, text_state->string_size);
 	}
 	// **** send msg **** //
 	mode3_set_msg(&msg);
@@ -154,7 +161,7 @@ void mode3_set_string(char input_char, int flag){
 	int i = 0;
 
 	//**** if input character is number ****//
-	if (text_state->type == NUMBER) input_char += 0x30;
+	if (input_char != ' ' && text_state->type == NUMBER) input_char += 0x30;
 		
 	if (flag == SET){
 		if (str_size < 8){
@@ -184,7 +191,6 @@ void mode3_set_msg(struct mo_msgbuf *msg){
 	msg->led_data = LED_NONE;
 
 	//**** set dot matrix A or 1 ****//
-	printf("type : %d\n", text_state->type);
 	while (i < 10){
 		msg->dot_map[i] = fpga_number[text_state->type][i];
 		i++;
