@@ -41,9 +41,9 @@ void mode2_construct(key_t key_mo){
 }
 
 void mode2_destroy(){
-
 	counter_state->terminate = TRUE;
 
+	free(counter_state);
 }
 
 void mode2_main(unsigned char *swinum, key_t key_mo){
@@ -111,7 +111,23 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	int number = counter_state->counting_number;
 	int jinsu = counter_state->type;
 	int i = 0;
+
 	msg->msgtype = MO_MSGTYPE;
+
+	//**** do not use text and dot map ****//
+	while (i<33){
+		msg->text_string[i] = ' ';
+		i++;
+	}
+	i = 0;
+
+	while (i<10){
+		msg->dot_map[i] = 0x00;
+		i++;
+	}
+	i = 0;
+	/////////////////////////////////////////
+
 
 	if (jinsu == DECIMAL) 		{ jinsu = 10; msg->led_data = LED_2; }
 	else if (jinsu == OCTAL) 	{ jinsu = 8; msg->led_data = LED_3; }
@@ -122,11 +138,5 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	msg->fnd_data[1] = ((number / jinsu / jinsu) % jinsu) + 0x30;	
 	msg->fnd_data[2] = ((number / jinsu) % jinsu) + 0x30;	
 	msg->fnd_data[3] = (number % jinsu) + 0x30;
-
-	while(i < 4){
-		printf("[%d]", msg->fnd_data[i]);
-		i++;
-	}
-	printf("\n");
 }
 

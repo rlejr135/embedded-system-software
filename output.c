@@ -97,13 +97,8 @@ void output_fnd(int fnd_dev, unsigned char *output_data){
 }
 
 void output_dot(int dot_dev, unsigned char *dot_value){\
-	int value_size = sizeof(dot_value);
-	int i = 0;
+	int value_size = 10;
 
-	while (i < 10){
-		printf ("%x\n", dot_value[i]);
-		i++;
-	}
 	write(dot_dev, dot_value, value_size);
 }
 

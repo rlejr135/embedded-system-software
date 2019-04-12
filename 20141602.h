@@ -95,7 +95,7 @@ int main_main(key_t, key_t);
 void main_msgsnd(struct mo_msgbuf, key_t);
 int main_mode_change(int, unsigned int);
 void main_mobuf_init(struct mo_msgbuf *);
-void main_output_clear(struct mo_msgbuf *);
+void main_msg_clear(struct mo_msgbuf *);
 
 
 //**** output process ****//
@@ -127,9 +127,11 @@ void mode2_check_maximum();
 
 //**** program mode 3. Text ****//
 
-void mode3_construct();
+void mode3_construct(key_t);
 void mode3_destroy();
-
+void mode3_main(unsigned char*, key_t);
+void mode3_set_string(char, int);
+void mode3_set_msg(struct mo_msgbuf*);
 
 
 //**** program mode 4. Draw ****//
