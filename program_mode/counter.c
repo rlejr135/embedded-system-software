@@ -76,9 +76,6 @@ void mode2_main(unsigned char *swinum, key_t key_mo){
 			break;
 	}
 
-	printf("counter_state type = %d\n", counter_state->type);
-	printf("number : %d\n", counter_state->counting_number);
-
 	mode2_set_msg(&msg);
 	main_msgsnd(msg, key_mo);
 }
@@ -102,8 +99,6 @@ void mode2_check_maximum(){
 	else if (res == OCTAL) 		counter_state->counting_number %= OCTAL_MAX;
 	else if (res == QUADRATIC) 	counter_state->counting_number %= QUADRATIC_MAX;
 	else if (res == BINARY) 	counter_state->counting_number %= BINARY_MAX;
-
-	printf("%d\n", counter_state->counting_number);
 }
 
 //**** set msgbuf ****//
@@ -113,6 +108,7 @@ void mode2_set_msg(struct mo_msgbuf *msg){
 	int i = 0;
 
 	msg->msgtype = MO_MSGTYPE;
+	msg->poweroff = POWER_ON;
 
 	//**** do not use text and dot map ****//
 	while (i<33){

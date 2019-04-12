@@ -5,9 +5,10 @@
 
 #define CHANGE  0
 #define SET 	1
+#define MAX_STRING_LEN 32
 
 extern unsigned char fpga_number[11][10];
-char swi_text[9][3] = {
+const char swi_text[9][3] = {
 	{'.', 'Q', 'Z'},	// 1
 	{'A', 'B', 'C'},	// 2
 	{'D', 'E', 'F'},	// 3
@@ -21,7 +22,7 @@ char swi_text[9][3] = {
 
 struct mode3_state{
 	unsigned int count_num;
-	char display_string[9];
+	char display_string[MAX_STRING_LEN + 1];
 	int string_size;
 	char type;
 	int click_flag[9];
@@ -44,11 +45,11 @@ void mode3_construct(key_t key_mo){
 	text_state->string_size = 0;
 
 	//**** initialize string ****//
-	while(i < 8){
+	while(i < MAX_STRING_LEN){
 		mode3_set_string(' ', SET);
 		i++;
 	} 
-	text_state->display_string[8] = '\0';
+	text_state->display_string[MAX_STRING_LEN] = '\0';
 	i = 0;
 	text_state->string_size = 0;
 
@@ -81,19 +82,17 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 
 	//**** clear text lcd ****//
 	if (swinum[1] == 1 && swinum[2] == 1){	
-//	if (swinum[1] == 1){	
 		i = 0;
-		while(i < 8){
+		while(i < MAX_STRING_LEN){
 			mode3_set_string(' ', SET);
 			i++;
 		} 
-		text_state->display_string[8] = '\0';
+		text_state->display_string[MAX_STRING_LEN] = '\0';
 		i = 0;
 		text_state->string_size = 0;
 	}
 	//**** change eng -> num, num -> eng ****//
 	else if (swinum[4] == 1 && swinum[5] == 1){
-//	else if (swinum[4] == 1){
 		if (text_state->type == ALPHA) text_state->type = NUMBER;
 		else if (text_state->type == NUMBER) text_state->type = ALPHA;
 
@@ -105,7 +104,6 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 	}
 	//**** set space ****//
 	else if (swinum[7] == 1 && swinum[8] == 1){
-//	else if (swinum[7] == 1){
 		mode3_set_string(' ', SET);
 	}
 	//**** just one switch pushed ****//
@@ -164,16 +162,16 @@ void mode3_set_string(char input_char, int flag){
 	if (input_char != ' ' && text_state->type == NUMBER) input_char += 0x30;
 		
 	if (flag == SET){
-		if (str_size < 8){
+		if (str_size < MAX_STRING_LEN){
 			text_state->display_string[str_size] = input_char;
 			text_state->string_size +=1;
 		}
 		else{
-			while (i < 7){
+			while (i < MAX_STRING_LEN - 1){
 				text_state->display_string[i] = text_state->display_string[i+1];
 				i+=1;
 			}
-			text_state->display_string[7] = input_char;
+			text_state->display_string[MAX_STRING_LEN - 1] = input_char;
 		}
 	}
 	else if (flag == CHANGE && str_size != 0){
@@ -188,6 +186,9 @@ void mode3_set_msg(struct mo_msgbuf *msg){
 	int swi_count = text_state->count_num;
 
 	msg->msgtype = MO_MSGTYPE;
+	msg->poweroff = POWER_ON;
+
+	//**** do not use led data ****//
 	msg->led_data = LED_NONE;
 
 	//**** set dot matrix A or 1 ****//
@@ -202,7 +203,7 @@ void mode3_set_msg(struct mo_msgbuf *msg){
 		msg->text_string[i] = text_state->display_string[i];
 		i++;
 	}
-	while (i< 33){
+	while (i< MAX_STRING_LEN){
 		msg->text_string[i] = ' ';
 		i++;
 	}

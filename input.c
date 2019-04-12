@@ -14,11 +14,11 @@ int input_main(key_t key_im){
 		printf("switch device open error\n");
 	}
 
-	usleep(1000);
+	usleep(10000);
 
 	while(1){
 		input_init_imbuf(&imbuf);
-		input_flag = input_value(&imbuf, key_dev, swi_dev);
+		input_flag = input_value(&imbuf, key_dev, swi_dev, imbuf.swi);
 		if (input_flag > 0){
 			if (input_flag > 9) imbuf.swi[input_flag - 10] = 1;
 			
@@ -50,15 +50,17 @@ void input_init_imbuf(struct im_msgbuf *msgb){
 	msgb->key[2] = 0;
 }
 
-int input_value(struct im_msgbuf *msgb, int key_dev, int swi_dev)
+int input_value(struct im_msgbuf *msgb, int key_dev, int swi_dev, unsigned char *swi)
 {
 	struct input_event ev[BUFF_SIZE];
 	int size = sizeof (struct input_event), i;
 	unsigned char swi_buffer[9];
+	static unsigned char prev_buffer[9] = {0, }; 
+	int flag = FALSE, pressed = FALSE;
 
 	if (read (key_dev, ev, size * BUFF_SIZE) >= size)
 	{
-		if( ev[0].value == KEY_RELEASE ) {
+		if( ev[0].value == KEY_PRESS ) {
 			if (ev[0].code == POWER_OFF) {
 				msgb->key[0] = 1;
 				return POWER_OFF;
@@ -76,13 +78,23 @@ int input_value(struct im_msgbuf *msgb, int key_dev, int swi_dev)
 	else{
 		read(swi_dev, &swi_buffer, sizeof(swi_buffer));
 		for (i = 0 ; i < 9 ; i++){
-			if (swi_buffer[i]){
-				usleep(100000);
-				return i+10;
+			if (swi_buffer[i] && prev_buffer[i]){
+				pressed = TRUE;
+				break;
 			}
+		}
+		if (pressed) return 0;
+		for (i = 0 ; i < 9 ; i++){
+			if (swi_buffer[i]){
+				swi[i] = swi_buffer[i];
+				flag = TRUE;
+			}
+		}
+		for (i = 0 ; i < 9 ; i++){
+			prev_buffer[i] = swi[i];
 		}
 	}
 	
-	return 0;
+	return flag;
 }
 

@@ -9,20 +9,22 @@ struct mode1_state{
 	unsigned int hour, min, sec;
 	unsigned int reset_hour, reset_min;
 	unsigned char led;
+	int sw1_flag;							// is it time change mode
 	int terminate;
-	int sw1_flag;
 };
 struct mode1_state *clock_state ;
 
 pthread_t mode1_background_thread;
 int mode1_thread_id;
 
+pthread_mutex_t mutex_lock;
 
 void mode1_destroy(){
 	void *sta;
 
 	clock_state->terminate = TRUE;
 	pthread_join(mode1_background_thread, &sta);
+	pthread_mutex_destroy(&mutex_lock);
 	free(clock_state);
 }
 
@@ -43,6 +45,7 @@ void mode1_construct(key_t key_mo){
 	clock_state->sec = t->tm_sec;
 	clock_state->led = LED_1;
 
+	pthread_mutex_init(&mutex_lock, NULL);
 	//**** make background thread ****//
 	mode1_thread_id = pthread_create(&mode1_background_thread, NULL, mode1_background, (void *)key_mo);
 
@@ -117,6 +120,9 @@ void *mode1_background(void *key){
 	msg.led_data = LED_1;
 
 	while(!(clock_state->terminate) && !poweroff_flag){
+
+		pthread_mutex_lock(&mutex_lock);
+
 		mode1_set_fnd(&msg);
 
 		// **** check if 1 minute ****//
@@ -139,16 +145,31 @@ void *mode1_background(void *key){
 			main_msgsnd(msg, key_mo);
 		}
 
+		pthread_mutex_unlock(&mutex_lock);
 		//**** wait 1 second ****//
 		usleep(1000000);
 	}
+	pthread_exit(0);
 }
 
 void mode1_set_fnd(struct mo_msgbuf *msg){
+	int i = 0;
 
 	msg->msgtype = MO_MSGTYPE;
+	msg->poweroff = POWER_ON;
+
 	msg->fnd_data[0] = (clock_state->hour / 10) + 0x30;
 	msg->fnd_data[1] = (clock_state->hour % 10) + 0x30;
 	msg->fnd_data[2] = (clock_state->min / 10) + 0x30;
 	msg->fnd_data[3] = (clock_state->min % 10) + 0x30;
+
+	while (i < 33){
+		msg->text_string[i] = ' ';
+		i++;
+	}i = 0;
+
+	while(i < 10){
+		msg->dot_map[i] = 0x00;
+		i++;
+	}
 }

@@ -72,7 +72,6 @@ int output_main(key_t key_mo){
 		output_text_lcd(text_dev, mobuf.text_string);
 
 
-		printf("in output : %d\n", mobuf.poweroff);
 		if (mobuf.poweroff == POWER_OFF) break;
 	}
 
@@ -98,7 +97,6 @@ void output_fnd(int fnd_dev, unsigned char *output_data){
 
 void output_dot(int dot_dev, unsigned char *dot_value){\
 	int value_size = 10;
-
 	write(dot_dev, dot_value, value_size);
 }
 

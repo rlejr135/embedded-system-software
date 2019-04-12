@@ -16,10 +16,6 @@ unsigned char fpga_number[11][10] = {
 	{0x08,0x1C,0x36,0x36,0x77,0x7F,0x7F,0x63,0x63,0x63}  // A
 };
 
-unsigned char fpga_set_full[10] = {
-	0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f
-};
-
 unsigned char fpga_set_blank[10] = {
 	0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
 };
@@ -57,7 +53,7 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_CLOCK: 	{ mode1_destroy(); break; }
 				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
 				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
-				case PROG_MODE_DRAW:	{ break; }
+				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
 				case PROG_MODE_USER: 	{ break; }
 				// reset board function call
 			}
@@ -66,7 +62,7 @@ int main_main(key_t key_im, key_t key_mo){
 				case PROG_MODE_CLOCK: 	{ mode1_construct(key_mo); break; }
 				case PROG_MODE_COUNTER:	{ mode2_construct(key_mo); break; }
 				case PROG_MODE_TEXT: 	{ mode3_construct(key_mo); break; }
-				case PROG_MODE_DRAW: 	{ break; }
+				case PROG_MODE_DRAW: 	{ mode4_construct(key_mo); break; }
 				case PROG_MODE_USER: 	{ break; }
 			}
 		}
@@ -75,7 +71,7 @@ int main_main(key_t key_im, key_t key_mo){
 			case PROG_MODE_CLOCK: 		{ mode1_main(imbuf.swi, key_mo); break; }
 			case PROG_MODE_COUNTER:		{ mode2_main(imbuf.swi, key_mo); break; }
 			case PROG_MODE_TEXT: 		{ mode3_main(imbuf.swi, key_mo); break; }
-			case PROG_MODE_DRAW: 		{ break; }
+			case PROG_MODE_DRAW: 		{ mode4_main(imbuf.swi, key_mo); break; }
 			case PROG_MODE_USER: 		{ break; }
 		}
 		ex_mode = now_mode;
@@ -88,9 +84,14 @@ int main_main(key_t key_im, key_t key_mo){
 			mobuf.poweroff = POWER_OFF;
 			main_msg_clear(&mobuf);
 			main_msgsnd(mobuf, key_mo);
-			mode1_destroy();
-			mode2_destroy();
-
+			switch(now_mode){
+				case PROG_MODE_CLOCK: 	{ mode1_destroy(); break; }
+				case PROG_MODE_COUNTER:	{ mode2_destroy(); break; }
+				case PROG_MODE_TEXT: 	{ mode3_destroy(); break; }
+				case PROG_MODE_DRAW:	{ mode4_destroy(); break; }
+				case PROG_MODE_USER: 	{ break; }
+			}
+	
 			break;
 		}
 	}
@@ -125,13 +126,6 @@ void main_mobuf_init(struct mo_msgbuf *msg){
 		i++;
 	}
 	msg->led_data = LED_NONE;
-
-	strcpy(msg->text_string, "hihi");
-	i = 0;
-	while (i < 10){
-		msg->dot_map[i] = fpga_number[10][i];
-		i++;
-	}
 }
 
 void main_msg_clear(struct mo_msgbuf *msg){

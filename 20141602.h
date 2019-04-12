@@ -87,7 +87,7 @@ struct mo_msgbuf{
 
 //**** input process  ****//
 int input_main(key_t);
-int input_value(struct im_msgbuf *, int, int);
+int input_value(struct im_msgbuf *, int, int, unsigned char *);
 void input_init_imbuf(struct im_msgbuf *);
 
 //**** main process ****//
@@ -136,9 +136,11 @@ void mode3_set_msg(struct mo_msgbuf*);
 
 //**** program mode 4. Draw ****//
 
-void mode4_construct();
+void mode4_construct(key_t);
 void mode4_destroy();
-
+void mode4_main(unsigned char*, key_t);
+void *mode4_background(void *);
+void mode4_set_msg(struct mo_msgbuf*);
 
 
 //**** program mode 5. User ****//
