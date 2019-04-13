@@ -1,0 +1,17 @@
+
+1. if you type ./made.sh, 
+		make file 
+		adb push 20141602 data/local/tmp
+		make clean
+
+	is done.
+
+2. if you want make only. just typing 'make'
+3. for user. if you push switch, you can see what switch is pushed. board is not in a good state. so you must check what switch is pushed.
+
+4. 
+	mode 1 : clock
+	mode 2 : counter
+	mode 3 : text editor
+	mode 4 : draw board
+	mode 5 : piano tile(user defined)

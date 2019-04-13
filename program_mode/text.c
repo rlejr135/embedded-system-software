@@ -109,9 +109,9 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 	//**** just one switch pushed ****//
 	else if (switch_number != -1){
 		//**** define how switch pushed. ****//
-		/*	SET : swi(3) -> swi(4) 		res : DG
-		/	CHANGE : swi(3) -> swi(3)	res : E
-		*/
+		//*	SET : swi(3) -> swi(4) 		res : DG
+		//*	CHANGE : swi(3) -> swi(3)	res : E 
+		//////////////////////////////////////
 		if (text_state->type == ALPHA){
 			while (i < 9){
 				if (i == switch_number){

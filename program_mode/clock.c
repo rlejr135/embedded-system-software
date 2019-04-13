@@ -70,11 +70,8 @@ void mode1_main(unsigned char *swinum, key_t key_mo){
 	switch (switch_number){
 		case CHANGE_SET:
 			clock_state->sw1_flag  = (clock_state->sw1_flag + 1) & 1;
-
 			//**** set new time. sw1 flag is change 1 to 0****//
-			if (clock_state->sw1_flag == FALSE){
-				clock_state->led = LED_1;
-			}
+			if (clock_state->sw1_flag == FALSE)	clock_state->led = LED_1;
 			break;
 		case RESET:
 			clock_state->hour = clock_state->reset_hour;
@@ -91,7 +88,6 @@ void mode1_main(unsigned char *swinum, key_t key_mo){
 			if (clock_state->min >= 60){
 				clock_state->min -= 60;
 				clock_state->hour +=1;
-
 				if (clock_state->hour >= 24)
 					clock_state->hour -=24;
 			}

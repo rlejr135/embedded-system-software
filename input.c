@@ -19,16 +19,13 @@ int input_main(key_t key_im){
 	while(1){
 		input_init_imbuf(&imbuf);
 		input_flag = input_value(&imbuf, key_dev, swi_dev, imbuf.swi);
-
 		//**** if some is pushed **** //
 		if (input_flag > 0){
-			if (input_flag > 9) imbuf.swi[input_flag - 10] = 1;
-			
 			msgsnd(key_im, &imbuf, sizeof(struct im_msgbuf) - sizeof(long), 0);
 
 			// **** check user to what switch did user push **** //
 			for (i = 0 ; i < 9 ; i++)
-				printf("%d", imbuf.swi[i]);
+				printf("%d ", imbuf.swi[i]);
 			printf("\n");
 			
 			if (input_flag == POWER_OFF) break;
@@ -38,6 +35,7 @@ int input_main(key_t key_im){
 	}
 	close(key_dev);
 	close(swi_dev);
+	printf("input bye\n");
 	return 0;
 }
 

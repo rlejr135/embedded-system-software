@@ -76,6 +76,8 @@ void mode2_main(unsigned char *swinum, key_t key_mo){
 			counter_state->counting_number += 1;
 			mode2_check_maximum();	
 			break;
+		default:
+			break;
 	}
 
 	mode2_set_msg(&msg);

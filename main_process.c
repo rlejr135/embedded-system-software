@@ -30,6 +30,7 @@ int main_main(key_t key_im, key_t key_mo){
 	struct im_msgbuf imbuf;
 	struct mo_msgbuf mobuf;
 	unsigned int now_mode = 0, ex_mode = 0;
+	char decorate[21] = "********************";
 
 	imbuf.msgtype = 1;
 	mobuf.msgtype = 3;
@@ -37,6 +38,7 @@ int main_main(key_t key_im, key_t key_mo){
 
 	//**** in first, mode1 ****//
 	mode1_construct(key_mo);
+	printf("%s\nmode1 : clock\n%s\n", decorate, decorate);
 	usleep(10000);
 
 	while(1){
@@ -44,6 +46,8 @@ int main_main(key_t key_im, key_t key_mo){
 			perror("msgrcv() fail\n");
 			exit(1);
 		}
+
+
 		//**** look readkey ****//
 		if (imbuf.key[0] == 1) 		poweroff_flag = 1;
 		else if (imbuf.key[1] == 1)	now_mode = main_mode_change(1, now_mode);
@@ -60,11 +64,26 @@ int main_main(key_t key_im, key_t key_mo){
 			}
 			//**** construct now mode's status ****//
 			switch(now_mode){
-				case PROG_MODE_CLOCK: 	{ mode1_construct(key_mo); break; }
-				case PROG_MODE_COUNTER:	{ mode2_construct(key_mo); break; }
-				case PROG_MODE_TEXT: 	{ mode3_construct(key_mo); break; }
-				case PROG_MODE_DRAW: 	{ mode4_construct(key_mo); break; }
-				case PROG_MODE_USER: 	{ mode5_construct(key_mo); break; }
+				case PROG_MODE_CLOCK: 	 
+					mode1_construct(key_mo); 
+					printf("%s\nmode1 : clock\n%s\n", decorate, decorate);
+					break; 
+				case PROG_MODE_COUNTER:	
+					mode2_construct(key_mo); 
+					printf("%s\nmode2 : counter\n%s\n", decorate, decorate);
+					break;
+				case PROG_MODE_TEXT: 
+					mode3_construct(key_mo); 
+					printf("%s\nmode3 : text editor\n%s\n", decorate, decorate);
+					break; 
+				case PROG_MODE_DRAW:
+					mode4_construct(key_mo); 
+					printf("%s\nmode4 : draw board\n%s\n", decorate, decorate);
+					break;
+				case PROG_MODE_USER: 
+					mode5_construct(key_mo); 
+					printf("%s\nmode5 : piano tile\n%s\n", decorate, decorate);
+					break; 
 			}
 		}
 		//**** execute now mode ****//
@@ -76,16 +95,11 @@ int main_main(key_t key_im, key_t key_mo){
 			case PROG_MODE_USER: 		{ mode5_main(imbuf.swi, key_mo); break; }
 		}
 		ex_mode = now_mode;
-
-		//**** init msgbuf ****//
-		main_msg_clear(&mobuf);
-
-
-		if (poweroff_flag) {
-			mobuf.poweroff = POWER_OFF;
+		
+		if (poweroff_flag == TRUE) {
 			main_msg_clear(&mobuf);
+			mobuf.poweroff = POWER_OFF;
 			main_msgsnd(mobuf, key_mo);
-
 			//**** destroy now mode and exit ****//
 			switch(now_mode){
 				case PROG_MODE_CLOCK: 	{ mode1_destroy(); break; }
@@ -101,7 +115,6 @@ int main_main(key_t key_im, key_t key_mo){
 	// **** wait input and output process **** //
 	wait(NULL);
 	wait(NULL);
-
 
 	printf("Good bye\n");
 	return 0;

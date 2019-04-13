@@ -33,14 +33,14 @@
 #define CHECK_B_5 0x43
 
 
-const unsigned char starting_text[] = "Piano tile      diff:";
+const unsigned char starting_text[] = "Piano tile      difficulty:";
 const unsigned char running_text[] = "Start!!         Score:";
-const unsigned char finish_text[] = "Finish!!        Score:";
+const unsigned char finish_text[] = "end. combo:     Score:";
 
-#define BEFORE_START_TEXT_LEN 21
+#define BEFORE_START_TEXT_LEN 27
 #define RUNNING_TEXT_LEN 22
 #define FINISH_TEXT_LEN  22
-#define COMBO_PRINT_LOC  11
+#define COMBO_PRINT_LOC  12
 
 struct mode5_state{
 	int life;
@@ -180,13 +180,23 @@ void *mode5_background(void *key){
 	extern int poweroff_flag;
 	int random;
 	int tick_num = 0;
-	int mu = 50;
+	int mu = 10000;
+
+	i = -1;
+	while (i < piano_tile_state->speed){
+		mu += 5000;
+		i++;
+	}i = 0;
 
 	srand(time(NULL));
 
 	while(piano_tile_state->terminate == FALSE && poweroff_flag == POWER_ON){
 		// **** state is not running, continue **** //
 		if (piano_tile_state->game_state != RUNNING){
+			mode5_strcat();
+			mode5_set_msg(&msg);
+			main_msgsnd(msg, key_mo);
+
 			usleep(500000);
 			continue;
 		}
@@ -214,7 +224,7 @@ void *mode5_background(void *key){
 		main_msgsnd(msg, key_mo);
 
 		// **** check user mistakes **** //
-		if (tick_num > 10 && piano_tile_state->check_flag == FALSE){
+		if (tick_num >= 9 && piano_tile_state->check_flag == FALSE){
 
 			if (piano_tile_state->life >= 1){
 				piano_tile_state->life -= 1;
@@ -240,7 +250,7 @@ void *mode5_background(void *key){
 			tick_num = 11;
 			if (piano_tile_state->speed < MAX_SPEED){
 				piano_tile_state->speed += 1;
-				mu += 1000;
+				mu += 5000;
 			}
 		}
 	}
@@ -284,6 +294,10 @@ void mode5_set_msg(struct mo_msgbuf* msg){
 	// **** set text lcd **** //
 	while(i < piano_tile_state->text_len + 1){
 		msg->text_string[i] = piano_tile_state->game_text[i];
+		i++;
+	}
+	while (i < MAX_STRING_LEN){
+		msg->text_string[i] = ' ';
 		i++;
 	}
 
@@ -362,6 +376,10 @@ void mode5_strcat(){
 			j++;
 		}
 		piano_tile_state->text_len = i;
+		while (i < MAX_STRING_LEN){
+			piano_tile_state->game_text[i] = ' ';
+			i++;
+		}
 	}
 }
 
