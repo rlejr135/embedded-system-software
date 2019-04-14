@@ -90,6 +90,11 @@ void mode3_main(unsigned char *swinum, key_t key_mo){
 		text_state->display_string[MAX_STRING_LEN] = '\0';
 		i = 0;
 		text_state->string_size = 0;
+        while(i < 9){
+            text_state->click_flag[i] = -1;
+            i++;
+        }i = 0;
+		text_state->first_typing = TRUE;
 	}
 	//**** change eng -> num, num -> eng ****//
 	else if (swinum[4] == 1 && swinum[5] == 1){

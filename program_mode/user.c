@@ -224,7 +224,7 @@ void *mode5_background(void *key){
 		main_msgsnd(msg, key_mo);
 
 		// **** check user mistakes **** //
-		if (tick_num >= 9 && piano_tile_state->check_flag == FALSE){
+		if (tick_num > 9 && piano_tile_state->check_flag == FALSE){
 
 			if (piano_tile_state->life >= 1){
 				piano_tile_state->life -= 1;
@@ -385,7 +385,6 @@ void mode5_strcat(){
 
 void mode5_check(int where){
 	int check_flag = FALSE;
-
 	// **** check user type switch and note is same **** //
 	switch(where){
 		case BUTTON_1:
@@ -415,6 +414,7 @@ void mode5_check(int where){
 			break;
 	}
 
+    // **** it's ok, score and combo up **** //
 	if (check_flag == TRUE){
 		piano_tile_state->check_flag = TRUE;
 		piano_tile_state->combo += 1;
