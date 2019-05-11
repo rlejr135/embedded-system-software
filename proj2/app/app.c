@@ -23,8 +23,7 @@ int main(int argc, char **argv){
 	count = atoi(argv[2]);
 	option = atoi(argv[3]);
 
-	printf("%d %d %d\n", interval, count, option);
-	
+	// get gdata
 	ret = syscall(376, interval, count, option, &gdata);
 
 	if (ret != 0){
@@ -42,7 +41,6 @@ int main(int argc, char **argv){
 
 
 	//ioctl
-	printf("ioctl\n");
 	ioctl(dev, 0, &gdata);
 
 
