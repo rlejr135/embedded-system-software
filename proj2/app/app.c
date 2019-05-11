@@ -9,12 +9,11 @@
 
 #define DEVICE_NAME "/dev/dev_driver"
 
-
 int main(int argc, char **argv){
-	int gdata;
+	int dev;
 	int interval, count, option, ret;
-	int a, b, c, d;
-
+	unsigned int gdata;
+	
 	if (argc != 4){
 		printf("invalid argument error <interval> <count> <start option>\n");
 		return -1;
@@ -33,18 +32,24 @@ int main(int argc, char **argv){
 		return -1;
 	}
 
-	printf("[%d]\n", gdata);
+	//open
 
-	a = (gdata & 0xFF000000) >> 24;
-	b = (gdata & 0x00FF0000) >> 16;
-	c = (gdata & 0x0000FF00) >> 8;
-	d = gdata & 0x000000FF;
+	dev = open(DEVICE_NAME, O_WRONLY);
+	if (dev < 0){
+		printf("device open error\n");
+		return -1;
+	}
 
-	printf("%d %d %d %d", a, b, c, d);
+
+	//ioctl
+	printf("ioctl\n");
+	ioctl(dev, 0, &gdata);
+
+
+	//close
+	close(dev);
 
 	return 0;
-
-
 }
 
 
