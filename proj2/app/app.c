@@ -11,11 +11,12 @@
 
 int main(int argc, char **argv){
 	int dev;
-	int interval, count, option, ret;
-	unsigned int gdata;
+	int interval, count, option;
+	unsigned int ret;
+	unsigned int err_flag;
 	
 	if (argc != 4){
-		printf("invalid argument error <interval> <count> <start option>\n");
+		printf("invalid argument error\nplease type <interval> <count> <start option>\n");
 		return -1;
 	}
 
@@ -24,9 +25,9 @@ int main(int argc, char **argv){
 	option = atoi(argv[3]);
 
 	// get gdata
-	ret = syscall(376, interval, count, option, &gdata);
+	ret = syscall(376, interval, count, option, &err_flag);
 
-	if (ret != 0){
+	if (err_flag != 0){
 		printf("syscall error. check argument\n");
 		return -1;
 	}
@@ -41,7 +42,7 @@ int main(int argc, char **argv){
 
 
 	//ioctl
-	ioctl(dev, 0, &gdata);
+	ioctl(dev, 0, &ret);
 
 
 	//close

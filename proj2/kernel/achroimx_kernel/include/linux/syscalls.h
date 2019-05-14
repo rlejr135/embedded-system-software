@@ -850,6 +850,6 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
 asmlinkage long sys_setns(int fd, int nstype);
 
 //**** new syscall ****//
-asmlinkage int sys_newcall(int interval, int count, int option, unsigned int *ret_value);
+asmlinkage unsigned int sys_newcall(int interval, int count, int option, unsigned int *err_value);
 
 #endif

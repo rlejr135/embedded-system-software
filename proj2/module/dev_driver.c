@@ -26,11 +26,16 @@
 #define IOM_FND_ADDRESS 0x08000004
 #define IOM_FPGA_TEXT_LCD_ADDRESS 0x08000090
 
+// **** for text lcd **** //
+
 #define LINE_BUF 16
 #define MAX_BUF 32
 
 #define LEFT_TO_RIGHT 0
 #define RIGHT_TO_LEFT 1
+
+
+#define TIME_INTERVAL HZ/10			// 1 per 0.1 sec 
 
 
 static int fpga_dev_usage = 0;
@@ -58,7 +63,9 @@ struct file_operations iom_fpga_dev_fops = {
 	.unlocked_ioctl=	iom_fpga_dev_ioctl,
 };
 
+////////////////////////////////////////
 // **** add for timer and output **** //
+////////////////////////////////////////
 
 struct timer_data{
 	int pos;					//	where fnd
@@ -152,11 +159,18 @@ long iom_fpga_dev_ioctl(struct file *myfile, unsigned int ioctl_num, unsigned lo
 
 ssize_t iom_fpga_dev_write(struct file *inode, const char *buf, size_t length, loff_t *offset){
 	
-		start_timer(buf);
+	start_timer(buf);
 	return 0;
 }
 
 void start_timer(const char *buf){	
+
+	if (timer_set == 1){
+		del_timer_sync(&my_timer.timer);
+	}
+
+
+	// **** init timer and data ****//
 
 	my_timer.pos = buf[3];
 	my_timer.now_val = buf[2];
@@ -164,22 +178,17 @@ void start_timer(const char *buf){
 	my_timer.start_val = buf[2];
 	my_timer.expire = buf[0];
 
-	if (timer_set == 1){
-		del_timer_sync(&my_timer.timer);
-	}
-
 	init_timer(&my_timer.timer);
 	init_output();
 
-	my_timer.timer.expires = get_jiffies_64() + my_timer.interval * HZ / 10;
+	my_timer.timer.expires = get_jiffies_64() + my_timer.interval * TIME_INTERVAL;
 	my_timer.timer.data = (unsigned long)&my_timer;
 	my_timer.timer.function = callback_handler;
 
+	// **** add timer **** //
 
 	timer_set = 1;
 	add_timer(&my_timer.timer);
-
-
 }
 
 void callback_handler(unsigned long arg){
@@ -192,9 +201,10 @@ void callback_handler(unsigned long arg){
 		return;
 	}
 
+	// **** print output and renew data **** //
 	print_output(tmp_data);
 
-	tmp_data->timer.expires = get_jiffies_64() + tmp_data->interval * HZ / 10;
+	tmp_data->timer.expires = get_jiffies_64() + tmp_data->interval * TIME_INTERVAL;
 	tmp_data->timer.data = (unsigned long) tmp_data;
 	tmp_data->timer.function = callback_handler;
 
@@ -227,8 +237,7 @@ void init_output(void){
 
 	// **** text init **** //
 
-	text_string[MAX_BUF] = 0;
-	
+	text_string[MAX_BUF] = 0;	
 	for (i = 0 ; i < MAX_BUF ; i++){
 		_s_value = (tmp & 0xFF) << 8 | (tmp & 0xFF);
 		outw(_s_value, (unsigned int)iom_fpga_text_lcd_addr+i);

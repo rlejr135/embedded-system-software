@@ -7,4 +7,4 @@ app:
 
 
 clean:
-	rm -rf $(APP)
+	rm -rf $(TARGET)
