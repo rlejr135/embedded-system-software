@@ -19,6 +19,10 @@ int main(int argc, char **argv){
 		printf("invalid argument error\nplease type <interval> <count> <start option>\n");
 		return -1;
 	}
+	else if (strlen(argv[3]) != 4){
+		printf("invalid argument error\nstart option's length is 4\n");
+		return -1;
+	}
 
 	interval = atoi(argv[1]);
 	count = atoi(argv[2]);
@@ -31,6 +35,7 @@ int main(int argc, char **argv){
 		printf("syscall error. check argument\n");
 		return -1;
 	}
+
 
 	//open
 

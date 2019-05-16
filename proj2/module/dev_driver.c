@@ -180,6 +180,7 @@ void start_timer(const char *buf){
 
 	init_timer(&my_timer.timer);
 	init_output();
+	print_output(&my_timer);
 
 	my_timer.timer.expires = get_jiffies_64() + my_timer.interval * TIME_INTERVAL;
 	my_timer.timer.data = (unsigned long)&my_timer;

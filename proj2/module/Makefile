@@ -3,8 +3,8 @@ obj-m := dev_driver.o
 KDIR := /work/achroimx_kernel
 PWD := $(shell pwd)
 
-default:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+driver:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules ARCH=arm
 
 clean :
 	rm -rf *.o
@@ -12,3 +12,5 @@ clean :
 	rm -rf *.mod.c
 	rm -rf *.order
 	rm -rf *.symvers
+	rm -rf .tmp*
+	rm -rf .dev*

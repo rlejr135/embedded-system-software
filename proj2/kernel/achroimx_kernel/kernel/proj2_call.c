@@ -12,6 +12,14 @@ asmlinkage unsigned int sys_newcall(int interval, int count, int option, unsigne
 		printk("error: option is not [0001 ~ 8000]\n");
 		error = 1;
 	}
+	else if (interval < 1 || interval > 100){
+		printk("error: interval is not [1 ~ 100]\n");
+		error = 1;
+	}
+	else if (count < 1 || count > 100){
+		printk("error: count is not [1 ~ 100]\n");
+		error = 1;	
+	}
 	else{
 		for (i = 1 ; i <= 4 ; i++){
 			temp = (option % where) / (where/10);
