@@ -64,7 +64,9 @@ DECLARE_WAIT_QUEUE_HEAD(proj3_waitq);
 /////////////////////////////
 
 
-#define TIME_INTERVAL HZ			// 1 per 1 sec
+#define TIME_INTERVAL HZ				// 1 per 1 sec
+#define EXIT_INTERVAL 3					// pushed exit button during 3 sec, exit program
+
 
 struct timer_data{
 	unsigned char min;
@@ -74,10 +76,13 @@ struct timer_data{
 	struct timer_list timer;
 };
 
-static struct timer_data my_timer;
+static struct timer_data my_timer;		// running timer
 static int timer_set;
+int timer_first_start = 0;
+struct timer_list quit_timer;			// quit timer. check quit button is pressed during 3sec
 
 void callback_handler(unsigned long arg);
+void finish_timer(unsigned long arg);
 void start_timer(void);
 void print_fnd(struct timer_data *);
 void init_fnd_and_data(void);
@@ -99,11 +104,12 @@ static struct file_operations inter_fops =
 irqreturn_t inter_handler_home(int irq, void* dev_id, struct pt_regs* reg) {
 	printk(KERN_ALERT "interrupt1!!! = %x\n", gpio_get_value(IMX_GPIO_NR(1, 11)));
 
-	// **** Start, or re - start timer **** //
-	if (timer_set == FALSE){
+	// **** Start timer. And do not use later(Only pause, reset, exit button use.) **** //
+	if (timer_first_start == 0 && timer_set == FALSE){
 		timer_set = TRUE;
+		timer_first_start = 1;
+		my_timer.pause_flag = FALSE;
 		start_timer();
-
 	}
 
 	return IRQ_HANDLED;
@@ -123,6 +129,11 @@ irqreturn_t inter_handler_back(int irq, void* dev_id, struct pt_regs* reg) {
 		del_timer(&my_timer.timer);
 		timer_set = FALSE;
 	}
+	// **** If current status is pause and pressed pause button one more, re-start **** //
+	else if (my_timer.pause_flag == TRUE){
+		start_timer();
+		timer_set = TRUE;
+	}
 
     return IRQ_HANDLED;
 }
@@ -133,10 +144,7 @@ irqreturn_t inter_handler_back(int irq, void* dev_id, struct pt_regs* reg) {
 irqreturn_t inter_handler_volup(int irq, void* dev_id,struct pt_regs* reg) {
     printk(KERN_ALERT "interrupt3!!! = %x\n", gpio_get_value(IMX_GPIO_NR(2, 15)));
 
-	if (timer_set == TRUE){
-		del_timer(&my_timer.timer);
-		timer_set = FALSE;
-	}
+	// **** When reset is pressed, current status is keeping (pause or start) **** //
 	init_fnd_and_data();
 
     return IRQ_HANDLED;
@@ -147,49 +155,59 @@ irqreturn_t inter_handler_volup(int irq, void* dev_id,struct pt_regs* reg) {
 //////////////////////////////////////////////////////////////////////
 irqreturn_t inter_handler_voldown(int irq, void* dev_id, struct pt_regs* reg) {
 
-	static int check_finish = 0;
-	static int prev_val = 0, now_val = 0;
+	int button_pressed = gpio_get_value(IMX_GPIO_NR(5,14));
 
-    printk(KERN_ALERT "interrupt4!!! = %x\n", gpio_get_value(IMX_GPIO_NR(5, 14)));
+	printk(KERN_ALERT "interrupt4!!! = %x\n", gpio_get_value(IMX_GPIO_NR(5, 14)));
 
 
-	if (prev_val == 0){
-		
-		prev_val = get_jiffies_64();
+	// **** If first exit button pressed, set quit timer **** //
+	if (button_pressed == 0){
+		init_timer(&quit_timer);
 
+		quit_timer.expires = get_jiffies_64() + TIME_INTERVAL * EXIT_INTERVAL;
+		quit_timer.data = (unsigned long)NULL;
+		quit_timer.function = finish_timer;
+
+		add_timer(&quit_timer);
+	}
+	// **** Quit_timer 's expires is 3 sec, so button release is not input during 3 sec,
+	// **** quit_timer call finish_timer and init fnd, wake up waitq and delete timer
+	// **** But button released  during 3 sec, quit_timer is delete, so timer is keep goning
+
+	if (button_pressed == 1){
+		del_timer(&quit_timer);
 	}
 
 
-	printk(KERN_ALERT, "hi\n");
-	// **** Finish timer and wake up **** //
-	if (timer_set == TRUE){
-		del_timer(&my_timer.timer);
-		timer_set = FALSE;
-
-	
-	init_fnd_and_data();
-	__wake_up(&proj3_waitq, 1, 1, NULL);
-	}
-
-	printk("hi\n");
  	return IRQ_HANDLED;
 }
 
+// **** init fnd and data, and delete timer. wake up waitq **** //
+void finish_timer(unsigned long arg){
+	del_timer(&my_timer.timer);
+	init_fnd_and_data();
+	timer_set = FALSE;
+	timer_first_start = 0;
+	__wake_up(&proj3_waitq, 1, 1, NULL);
+}
 
 
-
+// **** Every 1 sec, this function is called **** //
 void callback_handler(unsigned long arg){
 	
 	struct timer_data *tmp_data;
 
 	tmp_data = (struct timer_data *)arg;
 
+	// **** Print data and re - calculate **** //
 	print_fnd(tmp_data);
+
 
 	tmp_data->timer.expires = get_jiffies_64() + TIME_INTERVAL;
 	tmp_data->timer.data = (unsigned long) tmp_data;
 	tmp_data->timer.function = callback_handler;
 
+	// **** re - add timer **** //
 	add_timer(&tmp_data->timer);
 }
 
@@ -202,6 +220,7 @@ void start_timer(void){
 		init_timer(&my_timer.timer);
 
 
+		// **** Print first (0000) data **** //
 		print_fnd(&my_timer);
 
 		my_timer.timer.expires = get_jiffies_64() +  TIME_INTERVAL;
@@ -214,11 +233,13 @@ void start_timer(void){
 	// **** If timer is paused and re - start **** //
 	else if (my_timer.pause_flag == TRUE){
 
+		// **** In this case, bring last expire status **** //
 		my_timer.timer.expires = get_jiffies_64() + my_timer.rest_time;
 		my_timer.timer.data = (unsigned long)&my_timer;
 		my_timer.timer.function = callback_handler;
 
 
+		// **** Pause if release **** //
 		my_timer.pause_flag = FALSE;
 		my_timer.rest_time = 0;
 
@@ -268,7 +289,7 @@ void init_fnd_and_data(void){
 	my_timer.min = 0;
 	my_timer.sec = 0;
 	my_timer.rest_time = 0;
-	my_timer.pause_flag = FALSE;
+//	my_timer.pause_flag = FALSE;
 
 }
 
@@ -287,25 +308,25 @@ static int inter_open(struct inode *minode, struct file *mfile){
 	gpio_direction_input(IMX_GPIO_NR(1,11));
 	irq = gpio_to_irq(IMX_GPIO_NR(1,11));
 	printk(KERN_ALERT "IRQ Number : %d\n",irq);
-	ret = request_irq(irq, &inter_handler_home, IRQF_TRIGGER_FALLING, "home", NULL);
+	ret = request_irq(irq, (void*)inter_handler_home, IRQF_TRIGGER_FALLING, "home", NULL);
 
 	// interrupt back button
 	gpio_direction_input(IMX_GPIO_NR(1,12));
 	irq = gpio_to_irq(IMX_GPIO_NR(1,12));
 	printk(KERN_ALERT "IRQ Number : %d\n",irq);
-	ret = request_irq(irq, &inter_handler_back, IRQF_TRIGGER_FALLING, "back", NULL);
+	ret = request_irq(irq, (void*)inter_handler_back, IRQF_TRIGGER_FALLING, "back", NULL);
 
 	// interrupt volume up button
 	gpio_direction_input(IMX_GPIO_NR(2,15));
 	irq = gpio_to_irq(IMX_GPIO_NR(2,15));
 	printk(KERN_ALERT "IRQ Number : %d\n",irq);
-	ret = request_irq(irq, &inter_handler_volup, IRQF_TRIGGER_FALLING, "volup", NULL);
+	ret = request_irq(irq, (void*)inter_handler_volup, IRQF_TRIGGER_FALLING, "volup", NULL);
 
 	// interrupt volume down button
 	gpio_direction_input(IMX_GPIO_NR(5,14));
 	irq = gpio_to_irq(IMX_GPIO_NR(5,14));
 	printk(KERN_ALERT "IRQ Number : %d\n",irq);
-	ret = request_irq(irq, &inter_handler_voldown, IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING, "voldown", NULL);
+	ret = request_irq(irq, (void*)inter_handler_voldown, IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING, "voldown", NULL);
 
 	inter_usage = 1;
 	return 0;
@@ -341,17 +362,13 @@ static int inter_write(struct file *filp, const char *buf, size_t count, loff_t 
 static int inter_register_cdev(void)
 {
 	int error;
-//	if(inter_major) {
-		inter_dev = MKDEV(inter_major, inter_minor);
-		error = register_chrdev_region(inter_dev,1,"inter");
-//	}else{
-//		error = alloc_chrdev_region(&inter_dev,inter_minor,1,"inter");
-//		inter_major = MAJOR(inter_dev);
-//	}
+	inter_dev = MKDEV(inter_major, inter_minor);
+	error = register_chrdev_region(inter_dev,1,"inter");
 	if(error<0) {
 		printk(KERN_WARNING "inter: can't get major %d\n", inter_major);
 		return result;
 	}
+
 	printk(KERN_ALERT "major number = %d\n", inter_major);
 	cdev_init(&inter_cdev, &inter_fops);
 	inter_cdev.owner = THIS_MODULE;
@@ -378,9 +395,6 @@ static int __init inter_init(void) {
 	printk(KERN_ALERT "Device : /dev/stopwatch, Major Num : 242 \n");
 	return 0;
 }
-/////////////////////////////////
-/////////////////////////////////
-
 
 static void __exit inter_exit(void) {
 	cdev_del(&inter_cdev);
