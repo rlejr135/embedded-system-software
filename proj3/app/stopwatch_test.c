@@ -24,4 +24,6 @@ int main(int argc, char **argv){
 	write(dev, &data, sizeof(data));
 
 	close(dev);
+
+	return 0;
 }

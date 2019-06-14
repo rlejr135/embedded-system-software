@@ -122,7 +122,7 @@ irqreturn_t inter_handler_back(int irq, void* dev_id, struct pt_regs* reg) {
     printk(KERN_ALERT "interrupt2!!! = %x\n", gpio_get_value(IMX_GPIO_NR(1, 12)));
 
 	// **** Set pause flag and rest time, delete timer **** //
-	if (timer_set == TRUE){
+	if (timer_set == TRUE && timer_first_start == 1){
 		my_timer.rest_time = my_timer.timer.expires - get_jiffies_64();
 		my_timer.pause_flag = TRUE;
 
@@ -130,7 +130,7 @@ irqreturn_t inter_handler_back(int irq, void* dev_id, struct pt_regs* reg) {
 		timer_set = FALSE;
 	}
 	// **** If current status is pause and pressed pause button one more, re-start **** //
-	else if (my_timer.pause_flag == TRUE){
+	else if (my_timer.pause_flag == TRUE && timer_first_start == 1){
 		start_timer();
 		timer_set = TRUE;
 	}
@@ -158,7 +158,7 @@ irqreturn_t inter_handler_voldown(int irq, void* dev_id, struct pt_regs* reg) {
 	int button_pressed = gpio_get_value(IMX_GPIO_NR(5,14));
 
 	printk(KERN_ALERT "interrupt4!!! = %x\n", gpio_get_value(IMX_GPIO_NR(5, 14)));
-
+	
 
 	// **** If first exit button pressed, set quit timer **** //
 	if (button_pressed == 0){
@@ -286,11 +286,10 @@ void init_fnd_and_data(void){
 	_s_value = fnd_val[0] << 12 | fnd_val[1] << 8 | fnd_val[2] << 4 | fnd_val[3];
 	outw(_s_value, (unsigned int)p3_fpga_fnd_addr);
 
+	// **** Initialize timer data **** //
 	my_timer.min = 0;
 	my_timer.sec = 0;
 	my_timer.rest_time = 0;
-//	my_timer.pause_flag = FALSE;
-
 }
 
 
