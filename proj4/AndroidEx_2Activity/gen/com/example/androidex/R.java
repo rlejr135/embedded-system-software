@@ -17,6 +17,7 @@ public final class R {
         public static final int Make_Buttons=0x7f060004;
         public static final int container=0x7f060000;
         public static final int editText1=0x7f060003;
+        public static final int main_btn_change=0x7f060005;
         public static final int puzzle_start=0x7f060001;
         public static final int textView1=0x7f060002;
     }
@@ -24,6 +25,7 @@ public final class R {
         public static final int activity_main=0x7f030000;
         public static final int activity_main2=0x7f030001;
         public static final int activity_puzzle_start=0x7f030002;
+        public static final int button=0x7f030003;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
