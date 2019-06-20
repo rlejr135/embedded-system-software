@@ -4,16 +4,19 @@ import java.util.Random;
 
 import android.R.drawable;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -24,38 +27,65 @@ public class PuzzleStartActivity extends Activity{
 	Random r = new Random();
 	int row, col, size;
 	int blanki, blankj;
-	int[][] puzzle = new int[5][5];
+	int[][] puzzle = new int[6][6];
 	OnClickListener puzzle_click;	
 	
+	EditText data;
 	
+	LinearLayout linear;
 	
-		@SuppressLint("NewApi")
 		@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		//set init layout
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_puzzle_start);
-		LinearLayout linear = (LinearLayout)findViewById(R.id.container);	
+		linear = (LinearLayout)findViewById(R.id.container);	
 		
+
+		data = (EditText)findViewById(R.id.editText1);
+		Button edit_btn=(Button)findViewById(R.id.Make_Buttons);
+		OnClickListener listener=new OnClickListener(){
+			public void onClick(View v){
+				String temp=data.getText().toString();
+				row = temp.charAt(0);
+				col = temp.charAt(2);
+				row = row - 48;
+				col = col - 48;
+				
+				if (row > 5 || col > 5){
+					Toast.makeText(getApplicationContext(), "please input under 5", Toast.LENGTH_LONG).show();
+					return;
+				}
+				
+				visible_button_and_start();
+			}
+		};
+		edit_btn.setOnClickListener(listener);
+	}
+		
+	
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	@SuppressLint("NewApi")
+	protected void visible_button_and_start(){		
 		// set window w, h
+
+		setContentView(R.layout.activity_puzzle_start);
+		linear = (LinearLayout)findViewById(R.id.container);	
+		
+		
 		int W, H;	
 		DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
 		W = dm.widthPixels;
-		H = dm.heightPixels;
+		H = dm.heightPixels;		
 		
-		
-		// get row, col data from prev activity
-		Intent intent = getIntent();
-		row = intent.getExtras().getInt("row");
-		col = intent.getExtras().getInt("col");
 		size = row * col;
 
 		
 		Shuffle_value_and_setting();
 		// data setting at puzzle
-
-		
+	
+		check_finish();
 		
 		// make row * col button
 		for (int i = 0 ; i < row ; i++){
@@ -90,17 +120,21 @@ public class PuzzleStartActivity extends Activity{
 			linear.addView(rowLayout);
 		}
 	}
+	
+	
 
 	protected void Shuffle_value_and_setting() {
-		int[] temp = new int[25];
+		int[] temp = new int[size];
 		// get row and column data. setting size (row * col)
 		
 		for (int i = 0 ; i < size ; i++){
 			temp[i] = i+1;
+
 		}
 		
 		for (int i = 0 ; i < size ; i++){
 			int tnum, ran = r.nextInt(size);
+			if (ran >= size || ran < 0) continue;
 			tnum = temp[ran];
 			temp[ran] =  temp[i];
 			temp[i] = tnum;
@@ -109,7 +143,7 @@ public class PuzzleStartActivity extends Activity{
 		
 		for (int i = 0 ; i < row ; i++){
 			for (int j = 0 ; j < col ; j++){
-				puzzle[i][j] = temp[i*(row+1) + j];
+				puzzle[i][j] = temp[i*col + j];	
 			}
 		}
 

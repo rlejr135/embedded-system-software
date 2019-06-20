@@ -23,7 +23,7 @@ public class MainActivity extends Activity{
 		Button btn=(Button)findViewById(R.id.puzzle_start);
 		OnClickListener listener=new OnClickListener(){
 			public void onClick(View v){
-				Intent intent=new Intent(MainActivity.this, MainActivity2.class);
+				Intent intent=new Intent(MainActivity.this, PuzzleStartActivity.class);
 				startActivity(intent);
 			}
 		};
