@@ -28,7 +28,9 @@ public class timer_serv extends Service{
 	
 	@Override
 	public void onCreate(){
-		super.onCreate();	
+		super.onCreate();
+
+		elapsedTime = 0;
 		mTask = new TimerTask(){
 			public void run(){
 				elapsedTime += 1;
@@ -37,8 +39,17 @@ public class timer_serv extends Service{
 
 		mTimer = new Timer();
 		mTimer.schedule(mTask, 0, 1000);
-		
-		elapsedTime = 0;
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return mbinder;
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent){
+		isStop = true;
+		return super.onUnbind(intent);
 	}
 
 	@Override
@@ -48,17 +59,4 @@ public class timer_serv extends Service{
           isStop = true;
     }
     
-	
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
-		return mbinder;
-	}
-	
-	@Override
-	public boolean onUnbind(Intent intent){
-		isStop = true;
-		return super.onUnbind(intent);
-	}
 }

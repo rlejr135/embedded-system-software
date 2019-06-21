@@ -93,6 +93,8 @@ public class PuzzleStartActivity extends Activity{
 				// start timer service			
 				bindintent = new Intent(PuzzleStartActivity.this, timer_serv.class);
 				bindService(bindintent, connection, BIND_AUTO_CREATE);		
+
+
 				running = true;			
 				new Thread(new gettimeThread()).start();
 				
@@ -139,14 +141,9 @@ public class PuzzleStartActivity extends Activity{
 				}
 			}
 		}
-
 	}
 
-
-
-
-
-		
+	
 	
 		
 		
@@ -155,8 +152,6 @@ public class PuzzleStartActivity extends Activity{
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@SuppressLint("NewApi")
 	protected void visible_button_and_start(){		
-		// set window w, h
-
 		setContentView(R.layout.activity_puzzle_start);
 		linear = (LinearLayout)findViewById(R.id.container);	
 		
@@ -170,16 +165,17 @@ public class PuzzleStartActivity extends Activity{
 		
 		size = row * col;
 
-		
-		Shuffle_value_and_setting();
-		// data setting at puzzle
 	
+		// setting puzzle data
+		Shuffle_value_and_setting();
+
+		// If puzzle size is 1*1, always finish immediately.
 		check_finish();
 		
+
 		// make row * col button
 		for (int i = 0 ; i < row ; i++){
 			LinearLayout rowLayout = new LinearLayout(this);
-
 			rowLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
 			for(int j = 0 ; j < col ; j++){
@@ -194,7 +190,7 @@ public class PuzzleStartActivity extends Activity{
 	            	blanki = i;
 	            	blankj = j;
 	            }
-	            else{
+	            else{						// it is not blank.
 	            	OnClickListener puzzle_click = new OnClickListener(){
 						public void onClick(View v) {
 							change_puzzle(v);
@@ -219,7 +215,6 @@ public class PuzzleStartActivity extends Activity{
 		
 		for (int i = 0 ; i < size ; i++){
 			temp[i] = i+1;
-
 		}
 		
 		for (int i = 0 ; i < size ; i++){
@@ -236,12 +231,12 @@ public class PuzzleStartActivity extends Activity{
 				puzzle[i][j] = temp[i*col + j];	
 			}
 		}
-
 	}
 	
 	
 	
-	// when button is pressed, change puzzle
+	// when button is pressed, change pushed button and black button
+	// also change button id, and where button is.
 	protected void change_puzzle(View v){
 	
 		int i = 0, j = 0;
@@ -255,7 +250,6 @@ public class PuzzleStartActivity extends Activity{
 				}
 			}
 		}
-		
 
 		
 		int tmp = puzzle[i][j];
@@ -293,9 +287,9 @@ public class PuzzleStartActivity extends Activity{
 	
 	// if finish, message to user and go back first screen
 	protected void check_finish(){
-		int flag = 0;
-		
+		int flag = 0;	
 		int i, j, num = 1;
+		// check puzzle's id (puzzle text) is successive
 		for (i = 0 ; i < row ; i++){
 			for (j = 0 ; j < col ; j++){
 				if (puzzle[i][j] != num){
@@ -307,9 +301,11 @@ public class PuzzleStartActivity extends Activity{
 
 		if (flag == 0){		
 			
+			// unbind timer service
 			unbindService(connection);
 			running = false;
 			
+			// print game finish message and go back main activity
 			Toast.makeText(getApplicationContext(), "game finish!", Toast.LENGTH_LONG).show();
 			Intent intent=new Intent(PuzzleStartActivity.this, MainActivity.class);
 			startActivity(intent);
