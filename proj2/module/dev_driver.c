@@ -1,7 +1,3 @@
-
-#include <linux/module.h>
-#include <linux/fs.h>
-#include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/delay.h>
