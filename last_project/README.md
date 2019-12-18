@@ -1,6 +1,6 @@
 Embedded System Software Class Last Team Project
 
-Member: Yun jehyeong,Chung jaehoon,Hwang gideok
+Member: Yun jehyeong,Chung jaehoon,Hwang kideok
 
 how to run:
 1. connect target board
